@@ -32,16 +32,19 @@ supabase/   SQL schema for the leads table
 - [ ] **Phase 4** — Deploy + custom domain.
 - [ ] *Later* — Owner admin page (self-edit content); Cal.com scheduler.
 
-## Business details (fill in)
+## Business details
 
-These drive the site content. TBD until provided:
-
-- **Business name:** TBD
-- **Owner phone / email (lead destination):** TBD
-- **Service area:** TBD
-- **Services:** TBD (e.g. open-cell / closed-cell foam, attics, crawlspaces, new construction, commercial)
-- **Logo / photos:** TBD
-- **Brand vibe:** TBD
+- **Business name:** Elite Foam Insulation LLC
+- **Phone (click-to-call):** (904) 570-8897
+- **Lead destination email:** TBD (need brother's email for the contact form)
+- **Service area:** Northeast Florida to Southeast Georgia
+- **Services:** Full-service spray foam insulation (open & closed cell; attics, crawlspaces,
+  new construction, commercial, re-insulation — "does it all")
+- **Logo:** Blue/black house + spray graphic (on Facebook). No file yet — site uses a wordmark +
+  simple SVG mark; drop in the real logo PNG when exported.
+- **Photos:** None yet — design avoids empty photo boxes; add job photos later.
+- **Brand vibe:** Clean / industrial, "reliably great work." Brand color: royal blue.
+- **Domain:** TBD
 
 ## Local setup
 
