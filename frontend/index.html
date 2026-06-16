@@ -74,12 +74,13 @@
     /* Hero */
     .hero{position:relative;background:radial-gradient(900px 500px at 78% -8%,rgba(37,99,235,.45),transparent 60%),linear-gradient(160deg,var(--navy),var(--navy-2));color:#fff;overflow:hidden}
     .hero-inner{position:relative;z-index:1;padding:84px 22px 0;max-width:760px}
+    .hero-eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:.78rem;font-weight:700;color:#6ea8fe;margin:0 0 14px}
     .hero h1{font-size:clamp(2.3rem,5.4vw,4rem);font-weight:900}
     .hero h1 .accent{color:#6ea8fe}
     .hero-sub{font-size:clamp(1rem,2vw,1.18rem);color:#c7d4ea;font-weight:600;margin:6px 0 30px}
     .hero-sub b{color:#fff}
     .hero-cta{display:flex;flex-wrap:wrap;gap:14px;padding-bottom:60px}
-    .foam-canvas{position:absolute;inset:0;z-index:0;pointer-events:none;filter:blur(1.1px)}
+    .foam-canvas{position:absolute;inset:0;z-index:0;pointer-events:none;filter:blur(1.4px)}
     /* Trust bar */
     .trust{position:relative;z-index:1;background:rgba(4,12,28,.55);border-top:1px solid rgba(255,255,255,.08)}
     .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:22px 0}
@@ -252,7 +253,8 @@
   <section id="top" class="hero">
     <canvas class="foam-canvas" aria-hidden="true"></canvas>
     <div class="hero-inner">
-      <h1>Stay Comfortable Year-Round with <span class="accent">Professional Spray Foam Insulation</span></h1>
+      <p class="hero-eyebrow">Spray Foam Insulation &bull; NE Florida &amp; SE Georgia</p>
+      <h1>Seal it once. <span class="accent">Save for decades.</span></h1>
       <p class="hero-sub"><b>Lower Energy Bills</b> &bull; <b>Improve Indoor Comfort</b> &bull; <b>Protect Your Home</b></p>
       <div class="hero-cta">
         <a href="#contact" class="btn btn-primary btn-lg">Get Free Estimate →</a>
@@ -587,15 +589,15 @@
       function frame() {
         if (act) { var dx = mx - lx, dy = my - ly, d = Math.hypot(dx, dy); if (d > 500) { lx = mx; ly = my; } var st = Math.min(6, Math.max(1, Math.floor(d / 6))); for (var i = 0; i < st; i++) spawn(lx + dx * i / st, ly + dy * i / st, 2, 1.7); lx = mx; ly = my; }
         hx += (mx - hx) * 0.3; hy += (my - hy) * 0.3;
-        ctx.clearRect(0, 0, W, H); ctx.fillStyle = "#fff";
+        ctx.clearRect(0, 0, W, H); ctx.fillStyle = "#cfdcef";
         for (var j = parts.length - 1; j >= 0; j--) {
           var p = parts[j]; p.ag++;
           if (!p.st) { p.vx *= 0.85; p.vy *= 0.85; p.vy += 0.06; p.x += p.vx; p.y += p.vy; if (Math.hypot(p.vx, p.vy) < 0.3) p.st = true; }
           p.r += p.gr; var al = 1, lft = p.mxa - p.ag; if (lft < 90) al = Math.max(0, lft / 90); if (p.ag > p.mxa) { parts.splice(j, 1); continue; }
-          ctx.globalAlpha = al; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
-          if (p.ring) { ctx.globalAlpha = al * 0.35; ctx.lineWidth = 1; ctx.strokeStyle = "#dbeafe"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.7, 0, 6.283); ctx.stroke(); ctx.fillStyle = "#fff"; }
+          ctx.globalAlpha = al * 0.5; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+          if (p.ring) { ctx.globalAlpha = al * 0.16; ctx.lineWidth = 1; ctx.strokeStyle = "#e3ecf8"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.7, 0, 6.283); ctx.stroke(); ctx.fillStyle = "#cfdcef"; }
         }
-        if (act) { ctx.globalAlpha = 0.95; for (var k = 0; k < 5; k++) { var a2 = Math.random() * 6.283, dd = Math.random() * 6; ctx.beginPath(); ctx.arc(hx + Math.cos(a2) * dd, hy + Math.sin(a2) * dd, 3.5 + Math.random() * 3.5, 0, 6.283); ctx.fill(); } }
+        if (act) { ctx.globalAlpha = 0.5; for (var k = 0; k < 5; k++) { var a2 = Math.random() * 6.283, dd = Math.random() * 6; ctx.beginPath(); ctx.arc(hx + Math.cos(a2) * dd, hy + Math.sin(a2) * dd, 3.5 + Math.random() * 3.5, 0, 6.283); ctx.fill(); } }
         ctx.globalAlpha = 1; requestAnimationFrame(frame);
       }
       frame();
