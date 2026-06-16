@@ -571,33 +571,44 @@
       });
     });
 
-    // Foam-spray cursor on the hero: white foam particles spray from the pointer, obey a
-    // little physics (drift, slight gravity), then stick to the blue and slowly fade.
+    // Foam-spray cursor on the hero: translucent foam sprays from the pointer, falls under
+    // gravity to the bottom of the section, pools there, then fades after a few seconds.
+    // The canvas tracks the hero's real size (ResizeObserver) so the spray stays under the cursor.
     (function () {
       var wrap = document.querySelector(".hero");
       var cv = document.querySelector(".foam-canvas");
       if (!wrap || !cv) return;
       if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       var ctx = cv.getContext("2d");
-      var W, H, dpr = Math.min(2, window.devicePixelRatio || 1);
+      var W = 1, H = 1, dpr = Math.min(2, window.devicePixelRatio || 1);
       var parts = [], mx = -300, my = -300, act = false, lx = -300, ly = -300, hx = -300, hy = -300;
-      function size() { var r = wrap.getBoundingClientRect(); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
-      size(); window.addEventListener("resize", size);
-      wrap.addEventListener("pointermove", function (e) { var r = wrap.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; act = true; });
+      var FOAM = "#cfdcef", BASE = 0.38, GRAV = 0.16, HOLD = 170, FADE = 80;
+      function size() { var r = cv.getBoundingClientRect(); W = Math.max(1, r.width); H = Math.max(1, r.height); cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+      size();
+      if (window.ResizeObserver) { new ResizeObserver(size).observe(wrap); } else { window.addEventListener("resize", size); }
+      window.addEventListener("load", size);
+      function locate(e) { var r = cv.getBoundingClientRect(); mx = (e.clientX - r.left) * (W / r.width); my = (e.clientY - r.top) * (H / r.height); act = true; }
+      wrap.addEventListener("pointermove", locate);
       wrap.addEventListener("pointerleave", function () { act = false; });
-      function spawn(x, y, n, sp) { for (var i = 0; i < n; i++) { var a = Math.random() * 6.283, s = Math.random() * sp; parts.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 0.4, r: 2 + Math.random() * 4.5, st: false, ag: 0, mxa: 320 + Math.random() * 280, gr: 0.015 + Math.random() * 0.03, ring: Math.random() < 0.3 }); } if (parts.length > 460) parts.splice(0, parts.length - 460); }
+      function spawn(x, y, n) { for (var i = 0; i < n; i++) { var a = Math.random() * 6.283, s = Math.random() * 1.4; parts.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 0.5, r: 2 + Math.random() * 4, grow: 0.01 + Math.random() * 0.02, pile: Math.random() * 26, rested: false, restAge: 0, ring: Math.random() < 0.28 }); } if (parts.length > 600) parts.splice(0, parts.length - 600); }
       function frame() {
-        if (act) { var dx = mx - lx, dy = my - ly, d = Math.hypot(dx, dy); if (d > 500) { lx = mx; ly = my; } var st = Math.min(6, Math.max(1, Math.floor(d / 6))); for (var i = 0; i < st; i++) spawn(lx + dx * i / st, ly + dy * i / st, 2, 1.7); lx = mx; ly = my; }
+        if (act) { var dx = mx - lx, dy = my - ly, d = Math.hypot(dx, dy); if (d > 600) { lx = mx; ly = my; } var st = Math.min(6, Math.max(1, Math.floor(d / 6))); for (var i = 0; i < st; i++) spawn(lx + dx * i / st, ly + dy * i / st, 2); lx = mx; ly = my; }
         hx += (mx - hx) * 0.3; hy += (my - hy) * 0.3;
-        ctx.clearRect(0, 0, W, H); ctx.fillStyle = "#cfdcef";
+        ctx.clearRect(0, 0, W, H); ctx.fillStyle = FOAM;
         for (var j = parts.length - 1; j >= 0; j--) {
-          var p = parts[j]; p.ag++;
-          if (!p.st) { p.vx *= 0.85; p.vy *= 0.85; p.vy += 0.06; p.x += p.vx; p.y += p.vy; if (Math.hypot(p.vx, p.vy) < 0.3) p.st = true; }
-          p.r += p.gr; var al = 1, lft = p.mxa - p.ag; if (lft < 90) al = Math.max(0, lft / 90); if (p.ag > p.mxa) { parts.splice(j, 1); continue; }
-          ctx.globalAlpha = al * 0.5; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
-          if (p.ring) { ctx.globalAlpha = al * 0.16; ctx.lineWidth = 1; ctx.strokeStyle = "#e3ecf8"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.7, 0, 6.283); ctx.stroke(); ctx.fillStyle = "#cfdcef"; }
+          var p = parts[j];
+          if (!p.rested) {
+            p.vy += GRAV; p.vx *= 0.97; p.x += p.vx; p.y += p.vy;
+            var fl = H - p.r - p.pile;
+            if (p.y >= fl) { p.y = fl; p.vy = 0; p.vx *= 0.5; if (Math.abs(p.vx) < 0.25) { p.vx = 0; p.rested = true; p.restAge = 0; } }
+          } else { p.restAge++; }
+          p.r += p.grow;
+          var al = BASE;
+          if (p.rested && p.restAge > HOLD) { var f = 1 - (p.restAge - HOLD) / FADE; if (f <= 0) { parts.splice(j, 1); continue; } al = BASE * f; }
+          ctx.globalAlpha = al; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+          if (p.ring) { ctx.globalAlpha = al * 0.4; ctx.lineWidth = 1; ctx.strokeStyle = "#e3ecf8"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 0.7, 0, 6.283); ctx.stroke(); ctx.fillStyle = FOAM; }
         }
-        if (act) { ctx.globalAlpha = 0.5; for (var k = 0; k < 5; k++) { var a2 = Math.random() * 6.283, dd = Math.random() * 6; ctx.beginPath(); ctx.arc(hx + Math.cos(a2) * dd, hy + Math.sin(a2) * dd, 3.5 + Math.random() * 3.5, 0, 6.283); ctx.fill(); } }
+        if (act) { ctx.globalAlpha = 0.34; for (var k = 0; k < 5; k++) { var a2 = Math.random() * 6.283, dd = Math.random() * 6; ctx.beginPath(); ctx.arc(hx + Math.cos(a2) * dd, hy + Math.sin(a2) * dd, 3.5 + Math.random() * 3.5, 0, 6.283); ctx.fill(); } }
         ctx.globalAlpha = 1; requestAnimationFrame(frame);
       }
       frame();
