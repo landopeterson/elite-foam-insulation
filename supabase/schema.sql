@@ -26,6 +26,13 @@ create table if not exists leads (
 create index if not exists idx_leads_created on leads (created_at desc);
 create index if not exists idx_leads_status  on leads (status);
 
--- Enable RLS with no anon policies → the anon/public key cannot read or write.
--- Only the service_role (backend) can touch this table.
+-- Enable RLS. The website posts leads directly to Supabase with the PUBLISHABLE key, so we
+-- allow INSERT only — no SELECT/UPDATE/DELETE for the public. That means the form can submit
+-- leads, but no one using the public key can read, edit, or delete anyone's data. Only the
+-- service_role (e.g. an admin tool or the Supabase dashboard) can read leads.
 alter table leads enable row level security;
+
+drop policy if exists "public can submit a lead" on leads;
+create policy "public can submit a lead"
+    on leads for insert
+    with check (true);

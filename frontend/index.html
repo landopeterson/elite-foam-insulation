@@ -448,6 +448,7 @@
       </div>
 
       <form class="contact-card" id="contact-form" novalidate>
+        <input type="text" name="company" id="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" />
         <div class="field"><label for="name">Name *</label><input type="text" id="name" name="name" required autocomplete="name" /></div>
         <div class="field-row">
           <div class="field"><label for="phone">Phone</label><input type="tel" id="phone" name="phone" autocomplete="tel" /></div>
@@ -507,37 +508,36 @@
   </div>
 
   <script>
-    // Backend URL. Local dev = localhost:8000. Change to the deployed API URL on launch.
-    const API_BASE = "http://localhost:8000";
+    // Contact form posts directly to Supabase. The publishable key is safe to expose — row-level
+    // security lets it ONLY insert into the leads table (no read access to anyone's data).
+    const SUPABASE_URL = "https://kvimcudxptpdnyemrrbk.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_Sx0e9I__azKV40cqLycudw_nruWASEf";
     document.getElementById("year").textContent = new Date().getFullYear();
 
     const form = document.getElementById("contact-form");
     const statusEl = document.getElementById("form-status");
     const submitBtn = document.getElementById("submit-btn");
+    function thanks() { form.reset(); statusEl.className = "form-status ok"; statusEl.textContent = "Thanks! We got your request and will reach out soon."; }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       statusEl.className = "form-status"; statusEl.textContent = "";
-      const data = {
-        name: form.name.value.trim(),
-        phone: form.phone.value.trim(),
-        email: form.email.value.trim(),
-        service: form.service.value,
-        message: form.message.value.trim(),
-        source: "website",
-      };
-      if (!data.name) return showErr("Please enter your name.");
-      if (!data.phone && !data.email) return showErr("Please leave a phone number or email so we can reach you.");
+      // Honeypot: humans leave this hidden field empty; bots fill it. Silently no-op.
+      if (form.company && form.company.value) return thanks();
+      var name = form.name.value.trim(), phone = form.phone.value.trim(), email = form.email.value.trim();
+      if (!name) return showErr("Please enter your name.");
+      if (!phone && !email) return showErr("Please leave a phone number or email so we can reach you.");
+      const data = { name: name, phone: phone || null, email: email || null, service: form.service.value || null, message: form.message.value.trim() || null, source: "website" };
 
       submitBtn.disabled = true; submitBtn.textContent = "Sending…";
       try {
-        const res = await fetch(`${API_BASE}/contact`, {
-          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Prefer": "return=minimal" },
+          body: JSON.stringify(data),
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        form.reset();
-        statusEl.className = "form-status ok";
-        statusEl.textContent = "Thanks! We got your request and will reach out soon.";
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        thanks();
       } catch (err) {
         showErr("Something went wrong — please try again, or tap a Call button above.");
         console.error(err);
