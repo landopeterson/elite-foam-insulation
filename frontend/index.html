@@ -63,7 +63,7 @@
     .site-header{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
     .header-inner{display:flex;align-items:center;justify-content:space-between;height:76px;gap:18px}
     .brand{display:inline-flex;align-items:center;gap:11px;color:var(--ink)}
-    .brand svg{width:42px;height:42px;flex:none}
+    .brand-logo{height:48px;width:auto;flex:none}
     .brand-name{font-weight:900;font-size:1.12rem;line-height:1}
     .brand-name span{display:block;font-size:.66rem;font-weight:700;letter-spacing:.18em;color:var(--slate);margin-top:3px}
     .nav{display:flex;align-items:center;gap:26px}
@@ -217,24 +217,16 @@
       .section{padding:56px 0}
     }
   </style>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 </head>
 <body>
-
-  <!-- Reusable brand mark -->
-  <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
-    <symbol id="logo" viewBox="0 0 48 48">
-      <ellipse cx="24" cy="24" rx="22" ry="13" fill="none" stroke="#1d4ed8" stroke-width="2" transform="rotate(-18 24 24)"/>
-      <path d="M8 28 L24 15 L40 28" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M13 26 V38 H35 V26" fill="none" stroke="#1d4ed8" stroke-width="3" stroke-linejoin="round"/>
-      <circle cx="24" cy="32" r="2.6" fill="#1d4ed8"/>
-    </symbol>
-  </svg>
 
   <!-- ============ HEADER ============ -->
   <header class="site-header">
     <div class="container header-inner">
-      <a href="#top" class="brand" aria-label="Elite Foam Insulation home">
-        <svg><use href="#logo"/></svg>
+      <a href="#top" class="brand" aria-label="Elite Foam Insulation LLC home">
+        <img src="logo.png" alt="Elite Foam Insulation LLC logo" class="brand-logo" />
         <span class="brand-name">ELITE FOAM<span>INSULATION LLC</span></span>
       </a>
       <nav class="nav">
@@ -479,7 +471,7 @@
     <div class="container">
       <div class="footer-grid">
         <div>
-          <div class="brand"><svg style="width:40px;height:40px"><use href="#logo"/></svg><span class="brand-name" style="color:#fff">ELITE FOAM<span>INSULATION LLC</span></span></div>
+          <div class="brand"><span class="brand-name" style="color:#fff">ELITE FOAM<span>INSULATION LLC</span></span></div>
           <p class="blurb">Providing top-quality spray foam insulation for homes and businesses across Northeast Florida &amp; Southeast Georgia.</p>
         </div>
         <div>
