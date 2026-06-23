@@ -26,25 +26,35 @@ supabase/   SQL schema for the leads table
 ## Build phases
 
 - [x] **Phase 0** — Project skeleton.
-- [ ] **Phase 1** — Supabase `leads` table + insert policy.
-- [ ] **Phase 2** — FastAPI `/contact` endpoint (store lead + email owner).
-- [ ] **Phase 3** — Frontend marketing site + contact form.
-- [ ] **Phase 4** — Deploy + custom domain.
-- [ ] *Later* — Owner admin page (self-edit content); Cal.com scheduler.
+- [x] **Phase 1** — Supabase `leads` table + RLS (public INSERT only; reads locked to the secret key).
+- [x] **Phase 2** — Lead capture: form posts directly to Supabase (publishable key).
+- [x] **Phase 3** — Marketing site (real logo, photos, foam-cursor hero, contact form).
+- [x] **Phase 4** — Deployed to Vercel (GitHub auto-deploy) + domain on Cloudflare.
+- [x] **Email alerts** — Supabase webhook → Vercel `/api/notify` → Resend → owner inbox.
+
+## TO DO (next session)
+
+- [ ] **Add Cloudflare Turnstile (free captcha) to the contact form.** Spam bots can submit through
+  the open insert policy (an SEO-pitch spam lead already came through). Add the Turnstile widget to
+  the form and verify the token before/at insert (e.g. move inserts behind a Vercel function that
+  checks the token, or validate in the webhook). Goal: block bots without bugging real visitors.
+- [ ] **Google Workspace** mailboxes for Grant + partner at `@elitesprayinsulation.com`, then point
+  the website's lead alerts (`LEAD_NOTIFY_TO` env var in Vercel) to the new address.
+- [ ] *Later* — owner admin page (self-edit content); Cal.com scheduler; real customer reviews; swap
+  stock photos for Grant's real job photos.
 
 ## Business details
 
-- **Business name:** Elite Foam Insulation LLC
-- **Phone (click-to-call):** (904) 570-8897
-- **Lead destination email:** TBD (need brother's email for the contact form)
+- **Business name:** Elite Foam Insulation LLC · **Owner:** Grant (brother)
+- **Live site:** https://elitesprayinsulation.com (also elite-foam-insulation.vercel.app)
+- **Phone (click-to-call):** (904) 570-8897 — hidden in page source until "Call" is pressed
+- **Lead alerts go to:** sulcata123@gmail.com (move to an `@elitesprayinsulation.com` inbox once Workspace is set up)
 - **Service area:** Northeast Florida to Southeast Georgia
-- **Services:** Full-service spray foam insulation (open & closed cell; attics, crawlspaces,
-  new construction, commercial, re-insulation — "does it all")
-- **Logo:** Blue/black house + spray graphic (on Facebook). No file yet — site uses a wordmark +
-  simple SVG mark; drop in the real logo PNG when exported.
-- **Photos:** None yet — design avoids empty photo boxes; add job photos later.
-- **Brand vibe:** Clean / industrial, "reliably great work." Brand color: royal blue.
-- **Domain:** TBD
+- **Services:** Full-service spray foam (open & closed cell; attics, crawlspaces, new construction, commercial)
+- **Logo:** Real emblem in use (`frontend/logo.png`, cleaned from source) + favicon. Swap for a vector if the designer's file turns up.
+- **Photos:** Stock spray-foam photos in use (`frontend/foam-*.jpg`) — replace with Grant's real job photos when available.
+- **Brand:** Clean / industrial. Tagline "Seal it once. Save for decades." Brand color: royal blue.
+- **Domain:** elitesprayinsulation.com — registrar + DNS at Cloudflare.
 
 ## Local setup
 
