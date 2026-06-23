@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
       headers: { Authorization: `Bearer ${RESEND}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from: FROM,
-        to: [TO],
+        to: TO.split(",").map(function (s) { return s.trim(); }).filter(Boolean),
         subject: `New quote request from ${name}`,
         text,
         reply_to: lead.email || undefined,
