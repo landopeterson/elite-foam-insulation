@@ -27,6 +27,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
+  <!-- Leaflet — free interactive map, no API key needed -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
   <style>
     :root{
       --blue:#2563eb; --blue-600:#1d4ed8; --blue-700:#1e40af;
@@ -148,6 +152,8 @@
     .area-faq{display:grid;grid-template-columns:1fr 1.2fr;gap:48px;align-items:start}
     .map-slot{border-radius:14px;min-height:240px;background:linear-gradient(135deg,#dbe7fb,#bcd2ff);position:relative;display:grid;place-items:center;color:#27406e;box-shadow:0 4px 14px rgba(15,23,42,.06)}
     .map-slot .pin{width:18px;height:18px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 8px rgba(37,99,235,.25),0 0 0 18px rgba(37,99,235,.12)}
+    .area-map{height:340px;border-radius:14px;overflow:hidden;box-shadow:0 4px 14px rgba(15,23,42,.06);position:relative;z-index:1}
+    .area-map .leaflet-popup-content{font-weight:600;color:#27364d}
     .area-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin-top:18px}
     .area-cols li{list-style:none;padding-left:26px;position:relative;color:#27364d;font-weight:600;font-size:.95rem}
     .area-cols li::before{content:"✓";position:absolute;left:0;color:var(--blue-600);font-weight:900}
@@ -390,7 +396,7 @@
       <div>
         <p class="mini">Our Service Area</p>
         <h2 class="section-title">Where We Work</h2>
-        <div class="map-slot"><div class="pin"></div></div>
+        <div id="area-map" class="area-map" role="img" aria-label="Map of our service area across Northeast Florida and Southeast Georgia"></div>
         <ul class="area-cols">
           <li>Jacksonville</li><li>St. Augustine</li>
           <li>Orange Park</li><li>Fleming Island</li>
@@ -500,6 +506,36 @@
       <div class="call-options" id="call-options"></div>
     </div>
   </div>
+
+  <script>
+    // Interactive service-area map (Leaflet + OpenStreetMap — free, no API key).
+    (function () {
+      if (!window.L) return;
+      if (!document.getElementById("area-map")) return;
+      var areas = [
+        { n: "Jacksonville", lat: 30.3322, lng: -81.6557 },
+        { n: "St. Augustine", lat: 29.8947, lng: -81.3131 },
+        { n: "Orange Park", lat: 30.1661, lng: -81.7065 },
+        { n: "Fleming Island", lat: 30.0936, lng: -81.7176 },
+        { n: "Middleburg", lat: 30.0658, lng: -81.8598 },
+        { n: "Southeast Georgia", lat: 30.7999, lng: -81.6901 }
+      ];
+      var map = L.map("area-map", { scrollWheelZoom: false });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 18
+      }).addTo(map);
+      var pts = [];
+      areas.forEach(function (a) {
+        L.circleMarker([a.lat, a.lng], { radius: 9, color: "#1d4ed8", weight: 2, fillColor: "#2563eb", fillOpacity: 0.75 })
+          .addTo(map)
+          .bindTooltip(a.n, { direction: "top" })
+          .bindPopup("<strong>" + a.n + "</strong>");
+        pts.push([a.lat, a.lng]);
+      });
+      map.fitBounds(pts, { padding: [30, 30] });
+    })();
+  </script>
 
   <div class="mobile-bar">
     <a class="call js-call" href="#" data-label="false">📞 Call Now</a>
