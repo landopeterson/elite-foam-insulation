@@ -550,8 +550,8 @@
     // in the raw HTML (keeps them off the page for scrapers/robocallers); the popup is built on
     // click and each option is a real tel: link (tapping one dials it on a phone).
     var CALL_NUMS = [
-      { d: "7988075409", label: "" },        // main line (stored reversed)
-      { d: "2611125409", label: "Grant" }    // Grant's line (stored reversed)
+      { d: "7988075409", label: "Grant" },    // main line (stored reversed)
+      { d: "2611125409", label: "Joshua" }   // second line (stored reversed)
     ];
     function prettyTel(d){ return "(" + d.slice(0,3) + ") " + d.slice(3,6) + "-" + d.slice(6); }
     var callModal = document.getElementById("call-modal");
