@@ -199,6 +199,18 @@
     .mobile-bar .call{background:var(--ink);color:#fff}
     .mobile-bar .quote{background:var(--blue);color:#fff}
 
+    /* Call-options popup */
+    .call-modal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(4,12,28,.55);padding:20px}
+    .call-modal.open{display:flex}
+    .call-modal-card{position:relative;background:#fff;border-radius:16px;padding:26px 24px 28px;max-width:360px;width:100%;box-shadow:var(--shadow);text-align:center}
+    .call-modal-card h3{font-size:1.25rem;margin:0 0 4px}
+    .call-modal-card p{color:var(--slate);font-size:.92rem;margin:0 0 18px}
+    .call-modal-close{position:absolute;top:8px;right:12px;background:none;border:none;font-size:1.7rem;line-height:1;color:var(--slate);cursor:pointer}
+    .call-options{display:grid;gap:12px}
+    .call-opt{display:block;background:var(--blue);color:#fff;padding:14px 18px;border-radius:10px;font-weight:700;font-size:1.1rem;text-decoration:none}
+    .call-opt:hover{background:var(--blue-600)}
+    .call-opt small{display:block;font-weight:500;font-size:.78rem;opacity:.9;margin-top:2px}
+
     /* Responsive */
     @media (max-width:1000px){
       .grid.cols-6,.why-choose{grid-template-columns:repeat(3,1fr)}
@@ -479,6 +491,16 @@
   </footer>
 
   <!-- Mobile sticky call bar -->
+  <!-- Call options popup (two numbers) -->
+  <div class="call-modal" id="call-modal" aria-hidden="true">
+    <div class="call-modal-card" role="dialog" aria-modal="true" aria-label="Call Elite Foam Insulation">
+      <button class="call-modal-close" id="call-modal-close" aria-label="Close">&times;</button>
+      <h3>Give us a call</h3>
+      <p>Choose a number to reach us</p>
+      <div class="call-options" id="call-options"></div>
+    </div>
+  </div>
+
   <div class="mobile-bar">
     <a class="call js-call" href="#" data-label="false">📞 Call Now</a>
     <a class="quote" href="#contact">Free Estimate</a>
@@ -524,29 +546,36 @@
     });
     function showErr(m){ statusEl.className = "form-status err"; statusEl.textContent = m; }
 
-    // Phone number is hidden until a visitor presses "Call" — keeps it off the page for
-    // scrapers/robocallers. Stored reversed so the digits aren't in the raw HTML; the
-    // first click reveals the number (and dials on a touch device).
-    var CALL_NUM = "7988075409".split("").reverse().join("");   // stored reversed on purpose
+    // "Call" buttons open a popup with our numbers. Digits are stored reversed so they're not
+    // in the raw HTML (keeps them off the page for scrapers/robocallers); the popup is built on
+    // click and each option is a real tel: link (tapping one dials it on a phone).
+    var CALL_NUMS = [
+      { d: "7988075409", label: "" },        // main line (stored reversed)
+      { d: "2611125409", label: "Grant" }    // Grant's line (stored reversed)
+    ];
     function prettyTel(d){ return "(" + d.slice(0,3) + ") " + d.slice(3,6) + "-" + d.slice(6); }
-    document.querySelectorAll(".js-call").forEach(function (el) {
-      el.addEventListener("click", function (e) {
-        e.preventDefault();
-        var num = CALL_NUM;
-        var tel = "tel:+1" + num;
-        if (!el.dataset.revealed) {
-          el.dataset.revealed = "1";
-          el.setAttribute("href", tel);
-          if (el.getAttribute("data-label") !== "false") {
-            el.textContent = "📞 " + prettyTel(num);
-          }
-        }
-        // On phones/tablets, place the call immediately; on desktop the number is now shown.
-        if (window.matchMedia && window.matchMedia("(hover: none)").matches) {
-          window.location.href = tel;
-        }
+    var callModal = document.getElementById("call-modal");
+    function openCallModal(){
+      var box = document.getElementById("call-options");
+      box.innerHTML = "";
+      CALL_NUMS.forEach(function (n) {
+        var num = n.d.split("").reverse().join("");
+        var a = document.createElement("a");
+        a.className = "call-opt";
+        a.href = "tel:+1" + num;
+        a.innerHTML = "📞 " + prettyTel(num) + (n.label ? "<small>" + n.label + "</small>" : "");
+        box.appendChild(a);
       });
+      callModal.classList.add("open");
+      callModal.setAttribute("aria-hidden", "false");
+    }
+    function closeCallModal(){ callModal.classList.remove("open"); callModal.setAttribute("aria-hidden", "true"); }
+    document.querySelectorAll(".js-call").forEach(function (el) {
+      el.addEventListener("click", function (e) { e.preventDefault(); openCallModal(); });
     });
+    document.getElementById("call-modal-close").addEventListener("click", closeCallModal);
+    callModal.addEventListener("click", function (e) { if (e.target === callModal) closeCallModal(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeCallModal(); });
 
     // Foam-spray cursor on the hero: translucent foam sprays from the pointer, falls under
     // gravity to the bottom of the section, pools there, then fades after a few seconds.
